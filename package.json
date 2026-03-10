@@ -1,0 +1,23 @@
+{
+  "name": "@okdoc/plugin-sdk",
+  "version": "0.1.0",
+  "description": "SDK for building OkDoc AI-powered plugins — decorators, types, and notifier for MCP tool integration.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=17.0.0"
+  },
+  "devDependencies": {
+    "@angular/core": "^20.0.0",
+    "typescript": "~5.8.0"
+  },
+  "license": "MIT",
+  "sideEffects": false
+}

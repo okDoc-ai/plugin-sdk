@@ -57,3 +57,41 @@ export interface McpStaticToolDeclaration {
     description: string;
     parameters?: McpToolParameters;
 }
+
+// ============================================================================
+// Remote Plugin Types — for dynamically-loaded Web Component plugins
+// ============================================================================
+
+/**
+ * Manifest for a remotely-loaded plugin (Web Component boundary).
+ *
+ * Unlike bundled plugins (which use @OkDocPlugin decorator on an Angular class),
+ * remote plugins register via `window.__OKDOC_PLUGINS__[id]` and render as
+ * Custom Elements. This manifest describes the plugin for the host app.
+ */
+export interface RemotePluginManifest extends OkDocPluginMetadata {
+    /** Custom element tag name (must contain a hyphen, e.g. 'okdoc-timer') */
+    elementTag: string;
+    /** Framework used to build the plugin (informational) */
+    framework?: 'angular' | 'react' | 'vanilla';
+    /** Static tool declarations. If omitted, derived from toolHandlers keys. */
+    tools?: McpStaticToolDeclaration[];
+}
+
+/**
+ * The bundle object that a remote plugin registers on `window.__OKDOC_PLUGINS__`.
+ *
+ * Plugin developers call `registerRemotePlugin(bundle)` at the end of their
+ * bundle's entry point.
+ */
+export interface RemotePluginBundle {
+    /** Plugin manifest with identity, tools, and element tag */
+    manifest: RemotePluginManifest;
+    /** Map of tool name → handler function. Tool names must match manifest tool names. */
+    toolHandlers: Record<string, (args: Record<string, unknown>) => Promise<McpToolResult>>;
+}
+
+/** Shape of the global plugin registry on `window` */
+export interface OkDocPluginGlobal {
+    [pluginId: string]: RemotePluginBundle;
+}

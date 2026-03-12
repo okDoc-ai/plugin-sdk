@@ -10,6 +10,9 @@ export {
     McpStaticToolDeclaration,
     McpToolMetadata,
     OkDocPluginMetadata,
+    RemotePluginManifest,
+    RemotePluginBundle,
+    OkDocPluginGlobal,
 } from './types';
 
 // Symbols
@@ -23,3 +26,6 @@ export { readPluginMetadata, readToolMetadata, readStaticToolDeclarations } from
 
 // Notifier
 export { OkDocNotifier, OKDOC_NOTIFIER_TOKEN } from './notifier';
+
+// Remote plugin registration
+export { registerRemotePlugin } from './register-remote';

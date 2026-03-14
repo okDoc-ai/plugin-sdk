@@ -13,6 +13,15 @@ export {
     RemotePluginManifest,
     RemotePluginBundle,
     OkDocPluginGlobal,
+    // Iframe plugin types
+    OKDOC_IFRAME_PROTOCOL_VERSION,
+    IframePluginManifest,
+    OkDocIframeHandshake,
+    OkDocIframeManifestMessage,
+    OkDocIframeCallMessage,
+    OkDocIframeResultMessage,
+    OkDocIframeNotifyMessage,
+    OkDocIframePortMessage,
 } from './types';
 
 // Symbols

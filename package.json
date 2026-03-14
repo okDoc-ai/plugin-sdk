@@ -1,7 +1,8 @@
 {
   "name": "@okdoc/plugin-sdk",
-  "version": "0.2.0",
+  "version": "0.5.0",
   "description": "SDK for building OkDoc AI-powered plugins — decorators, types, and notifier for MCP tool integration.",
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -9,13 +10,16 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "build:iframe": "node scripts/build-iframe-sdk.mjs",
+    "build:all": "tsc && node scripts/build-iframe-sdk.mjs",
+    "prepublishOnly": "npm run build:all"
   },
   "peerDependencies": {
     "@angular/core": ">=17.0.0"
   },
   "devDependencies": {
     "@angular/core": "^20.0.0",
+    "esbuild": "^0.27.3",
     "typescript": "~5.8.0"
   },
   "license": "MIT",

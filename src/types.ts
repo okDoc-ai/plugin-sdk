@@ -95,3 +95,91 @@ export interface RemotePluginBundle {
 export interface OkDocPluginGlobal {
     [pluginId: string]: RemotePluginBundle;
 }
+
+// ============================================================================
+// Iframe Plugin Types — for cross-origin iframe-based plugins
+// ============================================================================
+
+/**
+ * Current protocol version for iframe plugin communication.
+ * Bumped (integer) only on breaking changes to the message format.
+ */
+export const OKDOC_IFRAME_PROTOCOL_VERSION = 1;
+
+/**
+ * Manifest for an iframe-based plugin.
+ *
+ * Iframe plugins run inside a cross-origin `<iframe>`. The host discovers
+ * tools via a MessageChannel handshake, then destroys the iframe. On tool
+ * call the iframe is re-created and the tool is invoked via the port.
+ */
+export interface IframePluginManifest {
+    /** Unique plugin identifier */
+    id: string;
+    /** Display name shown in the Plugin Store */
+    name: string;
+    /** Short description */
+    description: string;
+    /** Semver version of the plugin itself */
+    version: string;
+    /** Ionicon name for the store card */
+    icon?: string;
+    /** MCP namespace prefix for all tools */
+    namespace: string;
+    /** Display mode: foreground (visible UI) or background (hidden) */
+    mode?: 'foreground' | 'background';
+    /** Static tool declarations */
+    tools: McpStaticToolDeclaration[];
+}
+
+// ---- Iframe protocol messages ----
+
+/** Host → iframe: initial handshake (sent via window.postMessage with port2) */
+export interface OkDocIframeHandshake {
+    type: 'okdoc:handshake';
+    /** Protocol version the host supports */
+    version: number;
+}
+
+/** iframe → host: manifest response (sent on the MessageChannel port) */
+export interface OkDocIframeManifestMessage {
+    type: 'okdoc:manifest';
+    /** Protocol version the iframe SDK implements */
+    sdkVersion: number;
+    /** Plugin manifest with tool declarations */
+    manifest: IframePluginManifest;
+}
+
+/** host → iframe: tool call request (sent on the MessageChannel port) */
+export interface OkDocIframeCallMessage {
+    type: 'okdoc:call';
+    /** Unique call ID for correlating the response */
+    id: string;
+    /** Tool name (within namespace, e.g. 'getWeather') */
+    tool: string;
+    /** Tool arguments */
+    args: Record<string, unknown>;
+}
+
+/** iframe → host: tool call result (sent on the MessageChannel port) */
+export interface OkDocIframeResultMessage {
+    type: 'okdoc:result';
+    /** Correlates with the call ID */
+    id: string;
+    /** Tool execution result */
+    result: McpToolResult;
+}
+
+/** iframe → host: push notification to AI (sent on the MessageChannel port) */
+export interface OkDocIframeNotifyMessage {
+    type: 'okdoc:notify';
+    /** Notification text for the AI */
+    message: string;
+}
+
+/** Union of all messages that flow over the MessageChannel port */
+export type OkDocIframePortMessage =
+    | OkDocIframeManifestMessage
+    | OkDocIframeCallMessage
+    | OkDocIframeResultMessage
+    | OkDocIframeNotifyMessage;

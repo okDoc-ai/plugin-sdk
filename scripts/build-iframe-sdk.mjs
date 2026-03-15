@@ -11,6 +11,9 @@ import { dirname, resolve } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// Read version from package.json — single source of truth
+const pkg = JSON.parse(await readFile(resolve(__dirname, '../package.json'), 'utf-8'));
+
 await build({
     entryPoints: [resolve(__dirname, '../src/iframe-sdk.ts')],
     bundle: true,
@@ -22,6 +25,9 @@ await build({
     sourcemap: false,
     platform: 'browser',
     logLevel: 'info',
+    define: {
+        '__OKDOC_SDK_VERSION__': JSON.stringify(pkg.version),
+    },
 });
 
 console.log('✅ okdoc-iframe-sdk.js built successfully');

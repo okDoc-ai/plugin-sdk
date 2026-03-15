@@ -118,22 +118,13 @@ Build outputs:
 
 ## Releasing
 
-Releases are created automatically when a version tag is pushed:
+Use the interactive release script:
 
 ```bash
-# 1. Bump version in package.json, src/types.ts, and src/iframe-sdk.ts
-# 2. Build and commit
-npm run build:all
-git add -A
-git commit -m "release: v1.1.0"
-git tag v1.1.0
-git push origin main --tags
+npm run release 1.2.0
 ```
 
-The CI pipeline will:
-- Verify the tag version matches `package.json`
-- Build and type-check the project
-- Create a GitHub Release with the SDK zip and standalone iframe files
+The script walks you through each step (version bump → build → commit → tag → push) with **yes / skip / cancel** prompts. On push, GitHub Actions creates the release automatically.
 
 ## License
 

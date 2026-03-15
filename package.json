@@ -31,7 +31,8 @@
   "scripts": {
     "build": "tsc",
     "build:iframe": "node scripts/build-iframe-sdk.mjs",
-    "build:all": "tsc && node scripts/build-iframe-sdk.mjs",
+    "build:all": "node scripts/stamp-version.mjs && tsc && node scripts/build-iframe-sdk.mjs",
+    "release": "node scripts/release.mjs",
     "expose-test": "npm run build:all && npx http-server dist -p 7070",
     "prepublishOnly": "npm run build:all"
   },

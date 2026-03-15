@@ -10,8 +10,8 @@
 /** The MCP protocol version this SDK targets */
 export const OKDOC_MCP_PROTOCOL_VERSION = '2025-03-26';
 
-/** The OkDoc SDK version (semver) — keep in sync with package.json and iframe-sdk.ts SDK_PACKAGE_VERSION */
-export const OKDOC_SDK_VERSION = '1.0.0';
+/** The OkDoc SDK version (semver) — auto-generated from package.json by stamp-version */
+export { OKDOC_SDK_VERSION } from './version.js';
 
 /**
  * Current protocol version for iframe plugin communication.

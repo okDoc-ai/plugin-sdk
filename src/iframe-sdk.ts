@@ -33,8 +33,8 @@ const SDK_VERSION = 2;
 /** MCP protocol version this SDK targets */
 const MCP_PROTOCOL_VERSION = '2025-03-26';
 
-/** SDK package version — keep in sync with package.json and types.ts OKDOC_SDK_VERSION */
-const SDK_PACKAGE_VERSION = '1.0.0';
+/** SDK package version — injected at build time by esbuild from package.json */
+declare const __OKDOC_SDK_VERSION__: string;
 
 // ── Internal types (not exposed to plugin developers) ───────────────────────
 
@@ -79,7 +79,7 @@ function sendManifest(p: MessagePort): void {
             ...manifest,
             description: manifest.description ?? '',
             tools: buildToolDeclarations(),
-            sdkVersion: SDK_PACKAGE_VERSION,
+            sdkVersion: __OKDOC_SDK_VERSION__,
             mcpProtocolVersion: MCP_PROTOCOL_VERSION,
         },
     });

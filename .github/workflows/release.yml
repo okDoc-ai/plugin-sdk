@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Verify tag version matches package.json
+      - name: Verify version match
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: npm run build:all
+
+      - name: Verify cdn/ is up to date
+        run: |
+          git diff --exit-code cdn/ || {
+            echo "::error::cdn/ is out of date. Run 'npm run build:all' and commit the cdn/ changes before tagging."
+            exit 1
+          }
+
+      # Create SDK zip (dist + metadata + docs)
+      - name: Package SDK zip
+        run: |
+          mkdir -p _release
+          zip -r "_release/okdoc-plugin-sdk-v${VERSION}.zip" \
+            dist/ \
+            cdn/ \
+            DOCS/ \
+            package.json \
+            README.md \
+            LICENSE
+
+      # Copy standalone iframe files for individual download
+      - name: Prepare standalone iframe artifacts
+        run: |
+          cp dist/okdoc-iframe-sdk.js _release/
+          cp dist/okdoc-iframe-sdk-global.d.ts _release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            _release/okdoc-plugin-sdk-v${{ env.VERSION }}.zip
+            _release/okdoc-iframe-sdk.js
+            _release/okdoc-iframe-sdk-global.d.ts

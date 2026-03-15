@@ -48,6 +48,25 @@
     "esbuild": "^0.27.3",
     "typescript": "~5.8.0"
   },
-  "license": "MIT",
-  "sideEffects": false
+  "license": "Apache-2.0",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/okDoc-ai/okdoc-ai-sdk.git"
+  },
+  "homepage": "https://github.com/okDoc-ai/okdoc-ai-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/okDoc-ai/okdoc-ai-sdk/issues"
+  },
+  "keywords": [
+    "okdoc",
+    "plugin-sdk",
+    "mcp",
+    "ai-plugins",
+    "iframe-sdk",
+    "web-components",
+    "angular",
+    "tool-calling"
+  ],
+  "jsdelivr": "./cdn/okdoc-iframe-sdk.js"
 }

@@ -5,7 +5,7 @@
  * Usage: node scripts/build-iframe-sdk.mjs
  */
 import { build } from 'esbuild';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, mkdir, copyFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
@@ -67,3 +67,14 @@ dts = header + dts + footer;
 const outPath = resolve(__dirname, '../dist/okdoc-iframe-sdk-global.d.ts');
 await writeFile(outPath, dts);
 console.log('✅ okdoc-iframe-sdk-global.d.ts auto-generated from iframe-sdk-types.ts');
+
+// ── Copy iframe SDK deliverables to cdn/ for jsdelivr GitHub delivery ───────
+
+const cdnDir = resolve(__dirname, '../cdn');
+await mkdir(cdnDir, { recursive: true });
+await copyFile(
+    resolve(__dirname, '../dist/okdoc-iframe-sdk.js'),
+    resolve(cdnDir, 'okdoc-iframe-sdk.js'),
+);
+await copyFile(outPath, resolve(cdnDir, 'okdoc-iframe-sdk-global.d.ts'));
+console.log('✅ Copied iframe SDK files to cdn/ for jsdelivr delivery');

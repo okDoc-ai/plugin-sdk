@@ -13,6 +13,10 @@
  *   4. Commit version bump + build output
  *   5. Create git tag
  *   6. Push to origin
+ *
+ * On push, GitHub Actions will automatically:
+ *   - Create a GitHub Release with artifacts
+ *   - Publish to npm with provenance
  */
 
 import { readFileSync, writeFileSync } from 'fs';

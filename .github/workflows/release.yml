@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # Required for npm provenance
 
 jobs:
   release:
@@ -19,6 +20,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          registry-url: https://registry.npmjs.org
 
       - run: npm ci
 
@@ -69,3 +71,8 @@ jobs:
             _release/okdoc-plugin-sdk-v${{ env.VERSION }}.zip
             _release/okdoc-iframe-sdk.js
             _release/okdoc-iframe-sdk-global.d.ts
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

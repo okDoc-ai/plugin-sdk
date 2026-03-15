@@ -2,8 +2,8 @@
 // @okdoc/plugin-sdk — Decorators
 // ============================================================================
 
-import { OkDocPluginMetadata, McpToolMetadata, McpToolParameters } from './types';
-import { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols';
+import { OkDocPluginMetadata, McpToolMetadata, McpToolInputSchema, McpToolAnnotations } from './types.js';
+import { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols.js';
 
 // ── @OkDocPlugin ────────────────────────────────────────────────────────────
 
@@ -45,7 +45,9 @@ export interface McpToolOptions {
     /** Human-readable description of this tool. */
     description: string;
     /** JSON Schema for tool arguments. Omit if the tool takes no arguments. */
-    parameters?: McpToolParameters;
+    inputSchema?: McpToolInputSchema;
+    /** Additional tool annotations (hints for clients). */
+    annotations?: McpToolAnnotations;
 }
 
 /**
@@ -77,8 +79,11 @@ export function McpTool(options: McpToolOptions): MethodDecorator {
         if (options.name != null) {
             metadata.name = options.name;
         }
-        if (options.parameters != null) {
-            metadata.parameters = options.parameters;
+        if (options.inputSchema != null) {
+            metadata.inputSchema = options.inputSchema;
+        }
+        if (options.annotations != null) {
+            metadata.annotations = options.annotations;
         }
 
         existing.push(metadata);

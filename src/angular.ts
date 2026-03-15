@@ -1,8 +1,10 @@
 // ============================================================================
-// @okdoc/plugin-sdk — OkDocNotifier
+// @okdoc/plugin-sdk/angular — Angular-specific exports
 //
-// Abstract class that plugins inject to send notifications back to the AI.
-// The host app provides a concrete implementation via Angular DI.
+// This subpath export isolates @angular/core dependency so non-Angular
+// consumers can use the SDK without peer dependency warnings.
+//
+// Import from '@okdoc/plugin-sdk/angular' instead of '@okdoc/plugin-sdk'.
 // ============================================================================
 
 import { InjectionToken } from '@angular/core';
@@ -12,7 +14,7 @@ import { InjectionToken } from '@angular/core';
  *
  * Usage in a plugin:
  * ```typescript
- * import { OkDocNotifier } from '@okdoc/plugin-sdk';
+ * import { OkDocNotifier } from '@okdoc/plugin-sdk/angular';
  *
  * export class MyPluginComponent {
  *   private notifier = inject(OkDocNotifier);

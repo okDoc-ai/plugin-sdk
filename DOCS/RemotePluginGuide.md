@@ -1,39 +1,48 @@
 # OkDoc Remote Plugin Developer Guide
 
-## Overview
+Remote plugins are **self-contained JavaScript bundles** loaded by URL at runtime. Unlike iframe plugins, remote plugins render as **Web Components** (Custom Elements) directly inside the host app's DOM — giving full integration with no iframe sandbox.
 
-Remote plugins are **self-contained JavaScript bundles** loaded from any URL at runtime. Unlike bundled plugins (which ship inside the host app), remote plugins:
+> **Prerequisites:**
+> - Familiarity with building a Custom Element from your framework
+> - For Angular components, see [SampleRemoteComponentDevelopmentGuide.md](SampleRemoteComponentDevelopmentGuide.md) first
+> - For matching Ionic/Angular styles, see [IonicAngularProjectSetup.md](IonicAngularProjectSetup.md)
 
-- Can be developed, built, and hosted **independently**
-- Use **Web Components** (Custom Elements) as the rendering boundary
-- Support **any framework**: Angular, React, Lit, Svelte, vanilla JS
-- Register MCP tools with **pre-bound handlers** — no deferred activation needed
-- Are loaded via the Plugin Store "Load from URL" button
+---
 
-**Architecture:**
+## How It Works
+
 ```
-┌──────────────────────────────┐
-│  Plugin Bundle (plugin.js)   │
-│  ┌────────────────────────┐  │
-│  │  Custom Element tag    │  │   ← Web Component boundary
-│  │  (e.g. <my-widget>)   │  │
-│  └────────────────────────┘  │
-│  ┌────────────────────────┐  │
-│  │  registerRemotePlugin()│  │   ← SDK registration call
-│  │  { manifest, tools }   │  │
-│  └────────────────────────┘  │
-└──────────────────────────────┘
-           │  <script src="...">
+┌──────────────────────────────────────┐
+│  Your Plugin Bundle  (plugin.js)     │
+│  ┌────────────────────────────────┐  │
+│  │ Custom Element  <my-widget>    │  │  ← Web Component boundary
+│  └────────────────────────────────┘  │
+│  ┌────────────────────────────────┐  │
+│  │ registerRemotePlugin({         │  │  ← SDK registration
+│  │   manifest, toolHandlers       │  │
+│  │ })                             │  │
+│  └────────────────────────────────┘  │
+└──────────────────────────────────────┘
+           │  <script src="...plugin.js">
            ▼
-┌──────────────────────────────┐
-│  OkDoc Host App              │
-│  ┌──────────────┐            │
-│  │ RemoteLoader  │ → reads window.__OKDOC_PLUGINS__
-│  │ PluginRegistry│ → registers tools with MCP
-│  │ PluginOutlet  │ → creates <my-widget> in DOM
-│  └──────────────┘            │
-└──────────────────────────────┘
+┌──────────────────────────────────────┐
+│  OkDoc Host App                      │
+│  • Reads window.__OKDOC_PLUGINS__    │
+│  • Registers MCP tools               │
+│  • Creates <my-widget> in DOM        │
+│  • Routes AI tool calls to handlers  │
+└──────────────────────────────────────┘
 ```
+
+**Key differences from iframe plugins:**
+
+| | Iframe Plugin | Remote Plugin |
+|---|---|---|
+| Isolation | `<iframe>` sandbox | Same DOM (Custom Element) |
+| SDK delivery | `<script>` tag (standalone JS) | `npm install @okdoc/plugin-sdk` |
+| Framework | Any (HTML page) | Any (must output Web Component) |
+| Bundle format | N/A (it's a page) | Single IIFE `.js` file |
+| Loading | URL to a web page | URL to a `.js` bundle |
 
 ---
 
@@ -42,7 +51,7 @@ Remote plugins are **self-contained JavaScript bundles** loaded from any URL at 
 ### 1. Create a new Angular project
 
 ```bash
-ng new my-okdoc-plugin --style=scss --ssr=false --skip-tests
+npx @angular/cli@20 new my-okdoc-plugin --style=scss --ssr=false --skip-tests
 cd my-okdoc-plugin
 npm install @angular/elements @okdoc/plugin-sdk
 ```
@@ -52,7 +61,6 @@ npm install @angular/elements @okdoc/plugin-sdk
 ```typescript
 // src/app/my-widget.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { McpToolResult } from '@okdoc/plugin-sdk';
 
 // Global instance registry for tool handlers
 (window as any).__OKDOC_PLUGIN_INSTANCES__ ??= {};
@@ -70,7 +78,7 @@ import { McpToolResult } from '@okdoc/plugin-sdk';
     .widget {
       padding: 16px;
       border-radius: 12px;
-      background: #f0f4ff;
+      background: var(--ion-color-light, #f0f4ff);
       font-family: sans-serif;
     }
   `]
@@ -79,7 +87,6 @@ export class MyWidgetComponent implements OnInit, OnDestroy {
   message = 'Hello from remote plugin!';
 
   ngOnInit(): void {
-    // Register this instance so tool handlers can find it
     (window as any).__OKDOC_PLUGIN_INSTANCES__['my-widget'] = this;
   }
 
@@ -87,22 +94,21 @@ export class MyWidgetComponent implements OnInit, OnDestroy {
     delete (window as any).__OKDOC_PLUGIN_INSTANCES__['my-widget'];
   }
 
-  // MCP tool handler
-  async handleSetMessage(args: Record<string, unknown>): Promise<McpToolResult> {
+  async handleSetMessage(args: Record<string, unknown>) {
     this.message = String(args['message'] ?? '');
-    return { content: [{ type: 'text', text: `Message set to: ${this.message}` }] };
+    return { content: [{ type: 'text' as const, text: `Message set to: ${this.message}` }] };
   }
 }
 ```
 
-### 3. Bootstrap as Custom Element
+### 3. Bootstrap as Custom Element and register
 
-Replace `src/main.ts` with:
+Replace `src/main.ts`:
 
 ```typescript
 import { createApplication } from '@angular/platform-browser';
 import { createCustomElement } from '@angular/elements';
-import { registerRemotePlugin, McpToolResult } from '@okdoc/plugin-sdk';
+import { registerRemotePlugin } from '@okdoc/plugin-sdk';
 import { MyWidgetComponent } from './app/my-widget.component';
 
 function getInstance(): MyWidgetComponent | null {
@@ -110,10 +116,14 @@ function getInstance(): MyWidgetComponent | null {
 }
 
 (async () => {
+  // 1. Bootstrap Angular
   const app = await createApplication({ providers: [] });
+
+  // 2. Define Custom Element
   const MyElement = createCustomElement(MyWidgetComponent, { injector: app.injector });
   customElements.define('okdoc-my-widget', MyElement);
 
+  // 3. Register with OkDoc
   registerRemotePlugin({
     manifest: {
       id: 'my-widget',
@@ -151,35 +161,17 @@ function getInstance(): MyWidgetComponent | null {
 })();
 ```
 
-### 4. Configure angular.json for bundling
+### 4. Set deterministic output filenames
 
-In `angular.json`, set `outputHashing` to `"none"` so filenames are predictable:
+In `angular.json`, under `projects > my-okdoc-plugin > architect > build > configurations > production`:
 
 ```json
-{
-  "projects": {
-    "my-okdoc-plugin": {
-      "architect": {
-        "build": {
-          "configurations": {
-            "production": {
-              "outputHashing": "none"
-            }
-          }
-        }
-      }
-    }
-  }
-}
+"outputHashing": "none"
 ```
 
-### 5. Create a bundle script
+### 5. Create the IIFE bundle script
 
-Angular's esbuild `application` builder outputs **ESM** (`export` statements).
-A classic `<script>` tag cannot parse ESM, so we use **esbuild** to re-bundle
-the Angular output into a single **IIFE** file.
-
-Install esbuild as a dev dependency:
+Angular's builder outputs ESM — a classic `<script>` tag can't load ESM, so we re-bundle into IIFE with esbuild:
 
 ```bash
 npm install -D esbuild
@@ -198,19 +190,19 @@ const OUTPUT = join(import.meta.dirname, '..', 'dist', 'plugin.js');
 await build({
   entryPoints: [join(DIST_BROWSER, 'main.js')],
   bundle: true,
-  format: 'iife',      // ← critical: wraps everything in an IIFE
+  format: 'iife',
   outfile: OUTPUT,
   minify: true,
   logLevel: 'info',
 });
 
 const { size } = await stat(OUTPUT);
-console.log(`✓ Bundled into dist/plugin.js (${(size / 1024).toFixed(1)} KB)`);
+console.log(`\u2713 Bundled into dist/plugin.js (${(size / 1024).toFixed(1)} KB)`);
 ```
 
-### 6. Add a `postbuild` hook and build
+### 6. Add build scripts and build
 
-In `package.json`, add a `postbuild` script so the IIFE step runs **automatically** after every build:
+In `package.json`:
 
 ```json
 "scripts": {
@@ -220,20 +212,15 @@ In `package.json`, add a `postbuild` script so the IIFE step runs **automaticall
 }
 ```
 
-Now just run:
-
 ```bash
-# Build Angular + auto-rebundle as IIFE (postbuild runs automatically)
-npm run build
-
-# Serve locally for testing
-npm run serve
+npm run build    # Builds Angular + auto-rebundles as IIFE
+npm run serve    # Serve for testing
 ```
 
 ### 7. Load in OkDoc
 
 1. Open OkDoc → Settings → Plugin Store
-2. Paste `http://localhost:8787/plugin.js` in the URL input
+2. Paste `http://localhost:8787/plugin.js`
 3. Click **Load**
 4. The plugin appears with a "Remote" badge
 5. Toggle it on — the widget renders in the Plugin Outlet
@@ -255,9 +242,8 @@ npm install @okdoc/plugin-sdk r2wc-react-to-web-component
 
 ```tsx
 // src/MyCounter.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-// Global instance for tool handlers
 let currentInstance: { count: number; setCount: (n: number) => void } | null = null;
 export function getInstance() { return currentInstance; }
 
@@ -274,7 +260,7 @@ export default function MyCounter() {
       <h3>React Counter Plugin</h3>
       <p style={{ fontSize: 48, fontWeight: 'bold' }}>{count}</p>
       <button onClick={() => setCount(c => c + 1)}>+</button>
-      <button onClick={() => setCount(c => c - 1)}>−</button>
+      <button onClick={() => setCount(c => c - 1)}>&minus;</button>
       <button onClick={() => setCount(0)}>Reset</button>
     </div>
   );
@@ -289,11 +275,9 @@ import r2wc from 'r2wc-react-to-web-component';
 import { registerRemotePlugin } from '@okdoc/plugin-sdk';
 import MyCounter, { getInstance } from './MyCounter';
 
-// Convert React component to Web Component
 const CounterElement = r2wc(MyCounter, { props: {} });
 customElements.define('okdoc-react-counter', CounterElement);
 
-// Register with OkDoc
 registerRemotePlugin({
   manifest: {
     id: 'react-counter',
@@ -305,13 +289,17 @@ registerRemotePlugin({
     elementTag: 'okdoc-react-counter',
     framework: 'react',
     tools: [
-      { name: 'get_count', description: 'Get current count' },
-      { name: 'increment', description: 'Increment by 1' },
-      { name: 'set', description: 'Set to value', parameters: {
-        type: 'object',
-        properties: { value: { type: 'number', description: 'Value to set' } },
-        required: ['value'],
-      }},
+      { name: 'get_count', description: 'Get the current count value' },
+      { name: 'increment', description: 'Increment the counter by 1' },
+      {
+        name: 'set',
+        description: 'Set the counter to a specific value',
+        parameters: {
+          type: 'object',
+          properties: { value: { type: 'number', description: 'Value to set' } },
+          required: ['value'],
+        },
+      },
     ],
   },
   toolHandlers: {
@@ -321,7 +309,7 @@ registerRemotePlugin({
     },
     increment: async () => {
       const inst = getInstance();
-      inst?.setCount(inst.count + 1);
+      inst?.setCount((inst.count) + 1);
       return { content: [{ type: 'text', text: `Incremented to ${(inst?.count ?? 0) + 1}` }] };
     },
     set: async (args) => {
@@ -368,83 +356,164 @@ Load URL: `http://localhost:8788/plugin.js`
 
 ---
 
-## Manifest Reference
+## Quick Start (Vanilla JS)
 
-The manifest describes your plugin to the OkDoc host. Pass it to `registerRemotePlugin()`.
+No framework needed — just a Custom Element and the SDK:
+
+```html
+<!-- index.html — for development/testing only -->
+<script type="module">
+import { registerRemotePlugin } from './node_modules/@okdoc/plugin-sdk/dist/index.js';
+
+class OkdocTimer extends HTMLElement {
+  #seconds = 0;
+  #interval = null;
+
+  connectedCallback() {
+    this.innerHTML = `<div style="padding:16px;font-family:sans-serif">
+      <h3>Timer</h3><p id="display">0s</p>
+    </div>`;
+    window.__OKDOC_PLUGIN_INSTANCES__ ??= {};
+    window.__OKDOC_PLUGIN_INSTANCES__['timer'] = this;
+  }
+
+  disconnectedCallback() {
+    this.stop();
+    delete window.__OKDOC_PLUGIN_INSTANCES__['timer'];
+  }
+
+  start() {
+    if (this.#interval) return;
+    this.#interval = setInterval(() => {
+      this.#seconds++;
+      this.querySelector('#display').textContent = `${this.#seconds}s`;
+    }, 1000);
+  }
+
+  stop() {
+    clearInterval(this.#interval);
+    this.#interval = null;
+  }
+
+  reset() { this.stop(); this.#seconds = 0; this.querySelector('#display').textContent = '0s'; }
+  getSeconds() { return this.#seconds; }
+}
+
+customElements.define('okdoc-timer', OkdocTimer);
+
+function getInstance() {
+  return window.__OKDOC_PLUGIN_INSTANCES__?.['timer'] ?? null;
+}
+
+registerRemotePlugin({
+  manifest: {
+    id: 'timer',
+    name: 'Timer',
+    description: 'A simple stopwatch timer',
+    version: '1.0.0',
+    icon: 'timer-outline',
+    namespace: 'timer',
+    elementTag: 'okdoc-timer',
+    framework: 'vanilla',
+    tools: [
+      { name: 'start', description: 'Start the timer' },
+      { name: 'stop', description: 'Stop the timer' },
+      { name: 'reset', description: 'Reset the timer to 0' },
+      { name: 'get_time', description: 'Get elapsed seconds' },
+    ],
+  },
+  toolHandlers: {
+    start: async () => { getInstance()?.start(); return { content: [{ type: 'text', text: 'Timer started.' }] }; },
+    stop: async () => { getInstance()?.stop(); return { content: [{ type: 'text', text: 'Timer stopped.' }] }; },
+    reset: async () => { getInstance()?.reset(); return { content: [{ type: 'text', text: 'Timer reset.' }] }; },
+    get_time: async () => {
+      const s = getInstance()?.getSeconds() ?? 0;
+      return { content: [{ type: 'text', text: `Elapsed: ${s}s` }] };
+    },
+  },
+});
+</script>
+```
+
+> For production, bundle this with esbuild or rollup into a single IIFE `plugin.js` file.
+
+---
+
+## Manifest Reference
 
 ```typescript
 interface RemotePluginManifest {
-  id: string;           // Unique plugin ID (e.g. 'my-widget')
-  name: string;         // Display name in Plugin Store
-  description: string;  // Short description
-  version: string;      // Semver (e.g. '1.0.0')
-  icon: string;         // Ionicon name (e.g. 'cube-outline')
-  namespace: string;    // MCP tool name prefix (e.g. 'my_widget')
-  elementTag: string;   // Custom Element tag (must contain a hyphen)
-  framework?: string;   // 'angular' | 'react' | 'vanilla' (informational)
-  tools?: McpStaticToolDeclaration[];  // Tool declarations (see below)
+  id: string;            // Unique plugin ID (e.g. 'my-widget')
+  name: string;          // Display name in Plugin Store
+  description: string;   // Short description
+  version: string;       // Semver (e.g. '1.0.0')
+  icon: string;          // Ionicon name (e.g. 'cube-outline')
+  namespace: string;     // MCP tool name prefix (e.g. 'my_widget')
+  elementTag: string;    // Custom Element tag (must contain a hyphen)
+  framework?: string;    // 'angular' | 'react' | 'vanilla' (informational)
+  tools?: ToolDeclaration[];
 }
 ```
 
 ### Tool Declarations
 
-Each tool in the `tools` array:
-
 ```typescript
-interface McpStaticToolDeclaration {
-  name: string;                // Tool name (without namespace prefix)
+interface ToolDeclaration {
+  name: string;                // Tool name without namespace prefix
   description: string;         // Human-readable description for AI
   parameters?: {               // JSON Schema for arguments (omit for no-arg tools)
     type: 'object';
     properties: Record<string, {
       type: string;
       description?: string;
+      enum?: unknown[];
     }>;
     required?: string[];
+  };
+  annotations?: {              // Optional tool hints
+    title?: string;
+    readOnlyHint?: boolean;
+    destructiveHint?: boolean;
+    idempotentHint?: boolean;
+    openWorldHint?: boolean;
   };
 }
 ```
 
-**Tool naming:** The host auto-prefixes tool names with `{namespace}_`. So a tool named `increment` in namespace `my_counter` becomes `my_counter_increment` when the AI sees it.
+**Tool naming:** The host auto-prefixes tool names with `{namespace}_`. A tool named `set_message` in namespace `my_widget` becomes `my_widget_set_message` when the AI sees it.
 
 ### Tool Handlers
-
-Tool handlers are async functions that receive arguments and return `McpToolResult`:
 
 ```typescript
 toolHandlers: {
   tool_name: async (args: Record<string, unknown>) => {
-    // Do something...
     return {
-      content: [{ type: 'text', text: 'Result message' }],
+      content: [{ type: 'text', text: 'Result' }],
       isError: false,  // optional, default false
     };
   },
 }
 ```
 
-Every tool in `manifest.tools` must have a corresponding handler in `toolHandlers`.
+Every tool declared in `manifest.tools` must have a corresponding handler in `toolHandlers`. If you provide handlers without declarations, the SDK auto-generates minimal tool declarations from the handler keys.
 
 ---
 
 ## Instance Access Pattern
 
-Since your component runs inside a Custom Element (Shadow DOM boundary), tool handlers need a way to access the live component instance. The recommended pattern:
+Tool handlers are defined outside your component (in `main.ts`), but they need access to the live component instance. The recommended pattern uses a global registry:
 
 ### Angular
 
 ```typescript
-// In component:
+// In your component:
 (window as any).__OKDOC_PLUGIN_INSTANCES__ ??= {};
 
-@Component({ ... })
-export class MyComponent implements OnInit, OnDestroy {
-  ngOnInit() {
-    (window as any).__OKDOC_PLUGIN_INSTANCES__['my-plugin'] = this;
-  }
-  ngOnDestroy() {
-    delete (window as any).__OKDOC_PLUGIN_INSTANCES__['my-plugin'];
-  }
+ngOnInit() {
+  (window as any).__OKDOC_PLUGIN_INSTANCES__['my-plugin'] = this;
+}
+ngOnDestroy() {
+  delete (window as any).__OKDOC_PLUGIN_INSTANCES__['my-plugin'];
 }
 
 // In main.ts:
@@ -470,11 +539,12 @@ function MyComponent() {
 export function getInstance() { return instance; }
 ```
 
-### Vanilla / Lit
+### Vanilla JS
 
 ```javascript
 class MyElement extends HTMLElement {
   connectedCallback() {
+    window.__OKDOC_PLUGIN_INSTANCES__ ??= {};
     window.__OKDOC_PLUGIN_INSTANCES__['my-plugin'] = this;
   }
   disconnectedCallback() {
@@ -487,25 +557,25 @@ class MyElement extends HTMLElement {
 
 ## Lifecycle
 
-1. **Load**: User pastes URL → host injects `<script>` tag → bundle executes
-2. **Register**: Bundle calls `registerRemotePlugin()` → host reads `window.__OKDOC_PLUGINS__[id]`
-3. **Verify**: Host validates manifest + checks `customElements.get(tag)` succeeds
-4. **Enable**: Host registers MCP tools → AI can now call them
-5. **Render**: Plugin Outlet creates `<your-tag>` in DOM → component renders
-6. **Tool Call**: AI calls tool → host finds pre-bound handler → handler uses instance
-7. **Disable**: Host removes element from DOM, unregisters tools
-8. **Remove**: Host deletes the plugin entirely, untracks URL
+1. **Load** — User pastes URL → host injects `<script>` → bundle executes
+2. **Register** — Bundle calls `registerRemotePlugin()` → host reads `window.__OKDOC_PLUGINS__[id]`
+3. **Verify** — Host validates manifest + checks `customElements.get(tag)` succeeds
+4. **Enable** — Host registers MCP tools → AI can call them
+5. **Render** — Plugin Outlet creates `<your-tag>` in DOM → component renders
+6. **Tool Call** — AI calls tool → host finds pre-bound handler → handler accesses instance
+7. **Disable** — Host removes element from DOM, unregisters tools
+8. **Remove** — Host deletes the plugin entirely, forgets URL
 
-Remote plugin URLs are **persisted** — they reload automatically when the app restarts.
+Remote plugin URLs are **persisted** — they reload automatically on app restart.
 
 ---
 
 ## Custom Element Tag Rules
 
-- Must contain a hyphen (`-`) — W3C requirement
+- Must contain a hyphen (`-`) — W3C Custom Elements requirement
 - Must be globally unique across all loaded plugins
 - Convention: prefix with `okdoc-` (e.g. `okdoc-my-widget`)
-- Tag is registered via `customElements.define('okdoc-my-widget', MyElement)`
+- Must be registered via `customElements.define(tag, Element)` **before** calling `registerRemotePlugin()`
 
 ---
 
@@ -520,7 +590,7 @@ The bundle (`plugin.js`) can be hosted anywhere that serves static files with CO
 | CDN | `https://cdn.example.com/plugins/my-plugin/v1.0.0/plugin.js` |
 | S3 / GCS / Azure Blob | `https://my-bucket.s3.amazonaws.com/plugin.js` |
 
-**CORS requirement:** The server must allow cross-origin requests. For local dev, use `--cors` flag with `http-server`.
+**CORS requirement:** The server must send `Access-Control-Allow-Origin: *` headers. For local dev, use `--cors` flag with `http-server`.
 
 ---
 
@@ -528,18 +598,24 @@ The bundle (`plugin.js`) can be hosted anywhere that serves static files with CO
 
 | Problem | Solution |
 |---------|----------|
-| "No plugin was registered" | Your bundle must call `registerRemotePlugin()`. Check console for errors in the bundle. |
-| `Unexpected token 'export'` | Your bundle contains ESM `export` statements. Use esbuild with `format: 'iife'` (see step 5). |
-| "Custom Element not defined" | Make sure `customElements.define(tag, Element)` is called before `registerRemotePlugin()`. |
+| "No plugin was registered" | Your bundle must call `registerRemotePlugin()`. Check console for errors. |
+| `Unexpected token 'export'` | Bundle contains ESM. Use esbuild with `format: 'iife'` to re-bundle. |
+| "Custom Element not defined" | `customElements.define(tag, ...)` must be called **before** `registerRemotePlugin()`. |
 | "Plugin already loaded" | Same URL can't be loaded twice. Remove the existing plugin first. |
-| "ID already exists" | Another plugin (bundled or remote) has the same `id`. Change your manifest `id`. |
-| Tools not working | Make sure `toolHandlers` keys match `tools[].name` exactly. |
-| Component not rendering | Check that your Custom Element tag matches `manifest.elementTag`. |
-| CORS error | Your server must send `Access-Control-Allow-Origin: *` headers. |
+| "ID already exists" | Another plugin has the same `id`. Choose a unique manifest `id`. |
+| Tools not working | `toolHandlers` keys must match `tools[].name` exactly. |
+| Component not rendering | `manifest.elementTag` must match the tag in `customElements.define()`. |
+| CORS error | Server must send `Access-Control-Allow-Origin: *`. Use `--cors` for local dev. |
 
 ---
 
 ## SDK Exports for Remote Plugins
+
+Install with `npm install @okdoc/plugin-sdk`, then import:
+
+```typescript
+import { registerRemotePlugin } from '@okdoc/plugin-sdk';
+```
 
 | Export | Purpose |
 |--------|---------|
@@ -552,19 +628,8 @@ The bundle (`plugin.js`) can be hosted anywhere that serves static files with CO
 
 ---
 
-## Example: Full Angular Elements Plugin
+## Related Guides
 
-See the working example at:
-`okdoc-community-plugins/okdoc-plugin-angular-elements-sample/`
-
-This includes:
-- `src/app/sample-counter.component.ts` — Counter widget with 5 MCP tools
-- `src/main.ts` — Custom Element bootstrap + registration
-- `scripts/bundle.mjs` — esbuild IIFE bundler script
-- `package.json` — Dependencies and build scripts
-
-Build it: `npm run build` → the `postbuild` hook auto-produces `dist/plugin.js`
-
----
-
-<!-- TODO: Add offline caching support for remote plugin bundles -->
+- **[IonicAngularProjectSetup.md](IonicAngularProjectSetup.md)** — Create an Ionic 8 / Angular 20 project with matching styles
+- **[SampleRemoteComponentDevelopmentGuide.md](SampleRemoteComponentDevelopmentGuide.md)** — Create a reusable Angular library component
+- **[IframePluginGuide.md](IframePluginGuide.md)** — Simpler alternative: turn any web page into a plugin

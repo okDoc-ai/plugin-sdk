@@ -1,21 +1,47 @@
 {
   "name": "@okdoc/plugin-sdk",
-  "version": "0.5.0",
-  "description": "SDK for building OkDoc AI-powered plugins — decorators, types, and notifier for MCP tool integration.",
+  "version": "1.0.0",
+  "description": "SDK for building OkDoc AI-powered plugins — MCP-aligned types, decorators, AI format converters, and iframe SDK.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./angular": {
+      "types": "./dist/angular.d.ts",
+      "import": "./dist/angular.js"
+    },
+    "./handler": {
+      "types": "./dist/handler.d.ts",
+      "import": "./dist/handler.js"
+    }
+  },
   "files": [
     "dist"
   ],
+  "typesVersions": {
+    "*": {
+      "angular": ["./dist/angular.d.ts"],
+      "handler": ["./dist/handler.d.ts"]
+    }
+  },
   "scripts": {
     "build": "tsc",
     "build:iframe": "node scripts/build-iframe-sdk.mjs",
     "build:all": "tsc && node scripts/build-iframe-sdk.mjs",
+    "expose-test": "npm run build:all && npx http-server dist -p 7070",
     "prepublishOnly": "npm run build:all"
   },
   "peerDependencies": {
     "@angular/core": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/core": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@angular/core": "^20.0.0",

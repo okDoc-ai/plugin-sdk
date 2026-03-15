@@ -5,8 +5,8 @@
 // Used by the host framework to discover plugin identity and tools statically.
 // ============================================================================
 
-import { OkDocPluginMetadata, McpToolMetadata, McpStaticToolDeclaration } from './types';
-import { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols';
+import { OkDocPluginMetadata, McpToolMetadata, McpStaticToolDeclaration, OKDOC_SDK_VERSION, OKDOC_MCP_PROTOCOL_VERSION } from './types.js';
+import { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols.js';
 
 /**
  * Read @OkDocPlugin metadata from a component class.
@@ -34,9 +34,24 @@ export function readStaticToolDeclarations(componentClass: Function): McpStaticT
             name: meta.name ?? meta.methodName,
             description: meta.description,
         };
-        if (meta.parameters != null) {
-            decl.parameters = meta.parameters;
+        if (meta.inputSchema != null) {
+            decl.inputSchema = meta.inputSchema;
+        }
+        if (meta.annotations != null) {
+            decl.annotations = meta.annotations;
         }
         return decl;
     });
+}
+
+/**
+ * Auto-populate `sdkVersion` and `mcpProtocolVersion` on plugin metadata
+ * if not already set. Call during plugin registration.
+ */
+export function enrichPluginMetadata(metadata: OkDocPluginMetadata): OkDocPluginMetadata {
+    return {
+        ...metadata,
+        sdkVersion: metadata.sdkVersion ?? OKDOC_SDK_VERSION,
+        mcpProtocolVersion: metadata.mcpProtocolVersion ?? OKDOC_MCP_PROTOCOL_VERSION,
+    };
 }

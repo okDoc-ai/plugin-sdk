@@ -10,50 +10,47 @@
 //     OkDoc.init({ id: 'my-plugin', name: 'My Plugin', namespace: 'my', version: '1.0.0' });
 //     OkDoc.registerTool('doSomething', {
 //       description: 'Does something useful',
-//       parameters: { type: 'object', properties: { input: { type: 'string' } } },
+//       inputSchema: { type: 'object', properties: { input: { type: 'string' } } },
 //       handler: async (args) => ({ content: [{ type: 'text', text: 'Done!' }] })
 //     });
 //   </script>
 // ============================================================================
 
-/** Protocol version this SDK implements */
-const SDK_VERSION = 1;
+import type {
+    JsonSchemaProperty,
+    ToolInputSchema,
+    Annotations,
+    ToolAnnotations,
+    ContentBlock,
+    ToolResult,
+    ToolConfig,
+    InitOptions,
+} from './iframe-sdk-types.js';
 
-interface ToolParameters {
-    type: 'object';
-    properties: Record<string, { type: string; description?: string; enum?: string[] }>;
-    required?: string[];
-}
+/** Iframe protocol version this SDK implements */
+const SDK_VERSION = 2;
 
-interface ToolResult {
-    content: Array<{ type: 'text' | 'image' | 'resource'; text?: string; data?: string; mimeType?: string }>;
-    isError?: boolean;
-}
+/** MCP protocol version this SDK targets */
+const MCP_PROTOCOL_VERSION = '2025-03-26';
 
-interface ToolConfig {
-    description: string;
-    parameters?: ToolParameters;
-    handler: (args: Record<string, unknown>) => Promise<ToolResult>;
-}
+/** SDK package version — keep in sync with package.json and types.ts OKDOC_SDK_VERSION */
+const SDK_PACKAGE_VERSION = '1.0.0';
 
-interface PluginManifest {
-    id: string;
-    name: string;
-    description?: string;
-    version: string;
-    icon?: string;
-    namespace: string;
-    mode?: 'foreground' | 'background';
-}
+// ── Internal types (not exposed to plugin developers) ───────────────────────
+
+type ManifestData = Omit<InitOptions, 'allowedOrigins'>;
 
 interface ToolDeclaration {
     name: string;
     description: string;
-    parameters?: ToolParameters;
+    inputSchema?: ToolInputSchema;
+    annotations?: ToolAnnotations;
 }
 
-// Internal state
-let manifest: PluginManifest | null = null;
+// ── Internal state ──────────────────────────────────────────────────────────
+
+let manifest: ManifestData | null = null;
+let allowedOrigins: string[] | null = null;
 const tools = new Map<string, ToolConfig>();
 let port: MessagePort | null = null;
 let sendTimer: ReturnType<typeof setTimeout> | null = null;
@@ -62,8 +59,11 @@ function buildToolDeclarations(): ToolDeclaration[] {
     const declarations: ToolDeclaration[] = [];
     tools.forEach((config, name) => {
         const decl: ToolDeclaration = { name, description: config.description };
-        if (config.parameters) {
-            decl.parameters = config.parameters;
+        if (config.inputSchema) {
+            decl.inputSchema = config.inputSchema;
+        }
+        if (config.annotations) {
+            decl.annotations = config.annotations;
         }
         declarations.push(decl);
     });
@@ -79,6 +79,8 @@ function sendManifest(p: MessagePort): void {
             ...manifest,
             description: manifest.description ?? '',
             tools: buildToolDeclarations(),
+            sdkVersion: SDK_PACKAGE_VERSION,
+            mcpProtocolVersion: MCP_PROTOCOL_VERSION,
         },
     });
 }
@@ -150,6 +152,19 @@ function onHandshake(event: MessageEvent): void {
     if (!data || data.type !== 'okdoc:handshake') return;
     if (!event.ports || event.ports.length === 0) return;
 
+    // Origin validation
+    if (allowedOrigins) {
+        if (!allowedOrigins.includes(event.origin)) {
+            console.warn(`[OkDoc SDK] Rejected handshake from untrusted origin: ${event.origin}`);
+            return;
+        }
+    } else {
+        console.warn(
+            '[OkDoc SDK] No allowedOrigins configured — accepting handshake from any origin. ' +
+            'Set allowedOrigins in OkDoc.init() for production use.',
+        );
+    }
+
     // Accept the port from the host
     port = event.ports[0];
     port.onmessage = onPortMessage;
@@ -170,8 +185,10 @@ const OkDoc = {
      * Initialize the plugin with its manifest.
      * Must be called before registerTool().
      */
-    init(m: PluginManifest): void {
+    init(options: InitOptions): void {
+        const { allowedOrigins: origins, ...m } = options;
         manifest = m;
+        allowedOrigins = origins ?? null;
         // If the handshake already arrived before init(), schedule manifest send
         scheduleSendManifest();
     },
@@ -191,13 +208,41 @@ const OkDoc = {
      */
     notify(message: string): void {
         if (port) {
+            console.log('[OkDoc SDK] Sending notification to host:', message);
             port.postMessage({ type: 'okdoc:notify', message });
+        } else {
+            console.warn('[OkDoc SDK] notify() called but no port connected — handshake not completed yet.');
         }
     },
 
-    /** Current SDK protocol version */
+    /**
+     * Clean up the SDK: remove event listeners, close port, clear state.
+     */
+    destroy(): void {
+        window.removeEventListener('message', onHandshake);
+        if (sendTimer !== null) {
+            clearTimeout(sendTimer);
+            sendTimer = null;
+        }
+        if (port) {
+            port.close();
+            port = null;
+        }
+        manifest = null;
+        allowedOrigins = null;
+        tools.clear();
+    },
+
+    /** Current iframe protocol version */
     version: SDK_VERSION,
+
+    /** MCP protocol version this SDK targets */
+    mcpProtocolVersion: MCP_PROTOCOL_VERSION,
 };
 
-// Expose globally
-(window as any).OkDoc = OkDoc;
+// Expose globally (frozen, non-writable)
+Object.defineProperty(window, 'OkDoc', {
+    value: Object.freeze(OkDoc),
+    writable: false,
+    configurable: false,
+});

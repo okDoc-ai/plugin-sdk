@@ -1,20 +1,38 @@
 // ============================================================================
 // @okdoc/plugin-sdk — Public API
+//
+// This is the main entry point. Angular-specific exports are in ./angular.
+// Host-side handler & converters are in ./handler.
 // ============================================================================
 
-// Types
+// Version constants
 export {
-    McpToolParameters,
-    McpContent,
+    OKDOC_MCP_PROTOCOL_VERSION,
+    OKDOC_SDK_VERSION,
+    OKDOC_IFRAME_PROTOCOL_VERSION,
+} from './types.js';
+
+// Core types
+export type {
+    JsonSchemaProperty,
+    McpToolInputSchema,
+    McpAnnotations,
+    McpTextContent,
+    McpImageContent,
+    McpAudioContent,
+    McpEmbeddedResource,
+    McpResourceLink,
+    McpContentBlock,
+    McpToolAnnotations,
     McpToolResult,
     McpStaticToolDeclaration,
     McpToolMetadata,
     OkDocPluginMetadata,
+    OkDocPluginManifest,
     RemotePluginManifest,
     RemotePluginBundle,
     OkDocPluginGlobal,
     // Iframe plugin types
-    OKDOC_IFRAME_PROTOCOL_VERSION,
     IframePluginManifest,
     OkDocIframeHandshake,
     OkDocIframeManifestMessage,
@@ -22,19 +40,22 @@ export {
     OkDocIframeResultMessage,
     OkDocIframeNotifyMessage,
     OkDocIframePortMessage,
-} from './types';
+    // Host-side types
+    McpToolProvider,
+    McpToolDefinition,
+    McpComponentConfig,
+} from './types.js';
 
 // Symbols
-export { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols';
+export { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols.js';
 
 // Decorators
-export { OkDocPlugin, McpTool, McpToolOptions } from './decorators';
+export { OkDocPlugin, McpTool } from './decorators.js';
+export type { McpToolOptions } from './decorators.js';
 
 // Metadata readers
-export { readPluginMetadata, readToolMetadata, readStaticToolDeclarations } from './metadata';
-
-// Notifier
-export { OkDocNotifier, OKDOC_NOTIFIER_TOKEN } from './notifier';
+export { readPluginMetadata, readToolMetadata, readStaticToolDeclarations, enrichPluginMetadata } from './metadata.js';
 
 // Remote plugin registration
-export { registerRemotePlugin } from './register-remote';
+export { registerRemotePlugin } from './register-remote.js';
+export type { RemotePluginBundleInput } from './register-remote.js';

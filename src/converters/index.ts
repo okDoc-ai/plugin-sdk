@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Converters barrel export
+// @okdoc-ai/plugin-sdk — Converters barrel export
 // ============================================================================
 
 export {

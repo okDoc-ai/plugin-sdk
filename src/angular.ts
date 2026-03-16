@@ -1,10 +1,10 @@
 // ============================================================================
-// @okdoc/plugin-sdk/angular — Angular-specific exports
+// @okdoc-ai/plugin-sdk/angular — Angular-specific exports
 //
 // This subpath export isolates @angular/core dependency so non-Angular
 // consumers can use the SDK without peer dependency warnings.
 //
-// Import from '@okdoc/plugin-sdk/angular' instead of '@okdoc/plugin-sdk'.
+// Import from '@okdoc-ai/plugin-sdk/angular' instead of '@okdoc-ai/plugin-sdk'.
 // ============================================================================
 
 import { InjectionToken } from '@angular/core';
@@ -14,7 +14,7 @@ import { InjectionToken } from '@angular/core';
  *
  * Usage in a plugin:
  * ```typescript
- * import { OkDocNotifier } from '@okdoc/plugin-sdk/angular';
+ * import { OkDocNotifier } from '@okdoc-ai/plugin-sdk/angular';
  *
  * export class MyPluginComponent {
  *   private notifier = inject(OkDocNotifier);

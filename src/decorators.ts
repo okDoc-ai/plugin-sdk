@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Decorators
+// @okdoc-ai/plugin-sdk — Decorators
 // ============================================================================
 
 import { OkDocPluginMetadata, McpToolMetadata, McpToolInputSchema, McpToolAnnotations } from './types.js';

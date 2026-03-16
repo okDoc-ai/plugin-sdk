@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Types
+// @okdoc-ai/plugin-sdk — Types
 //
 // Aligned with MCP spec 2025-03-26 (baseline) with forward hooks
 // for 2025-11-25 features (outputSchema, structuredContent, resource_link).
@@ -182,7 +182,7 @@ export interface OkDocPluginMetadata {
     icon?: string;
     /** MCP namespace prefix for all tools (e.g. 'audio_player') */
     namespace: string;
-    /** Semver of the @okdoc/plugin-sdk this plugin was built with */
+    /** Semver of the @okdoc-ai/plugin-sdk this plugin was built with */
     sdkVersion?: string;
     /** MCP protocol version this plugin conforms to (e.g. '2025-03-26') */
     mcpProtocolVersion?: string;

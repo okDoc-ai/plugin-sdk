@@ -39,7 +39,7 @@ Remote plugins are **self-contained JavaScript bundles** loaded by URL at runtim
 | | Iframe Plugin | Remote Plugin |
 |---|---|---|
 | Isolation | `<iframe>` sandbox | Same DOM (Custom Element) |
-| SDK delivery | `<script>` tag (standalone JS) | `npm install @okdoc/plugin-sdk` |
+| SDK delivery | `<script>` tag (standalone JS) | `npm install @okdoc-ai/plugin-sdk` |
 | Framework | Any (HTML page) | Any (must output Web Component) |
 | Bundle format | N/A (it's a page) | Single IIFE `.js` file |
 | Loading | URL to a web page | URL to a `.js` bundle |
@@ -53,7 +53,7 @@ Remote plugins are **self-contained JavaScript bundles** loaded by URL at runtim
 ```bash
 npx @angular/cli@20 new my-okdoc-plugin --style=scss --ssr=false --skip-tests
 cd my-okdoc-plugin
-npm install @angular/elements @okdoc/plugin-sdk
+npm install @angular/elements @okdoc-ai/plugin-sdk
 ```
 
 ### 2. Create your component
@@ -108,7 +108,7 @@ Replace `src/main.ts`:
 ```typescript
 import { createApplication } from '@angular/platform-browser';
 import { createCustomElement } from '@angular/elements';
-import { registerRemotePlugin } from '@okdoc/plugin-sdk';
+import { registerRemotePlugin } from '@okdoc-ai/plugin-sdk';
 import { MyWidgetComponent } from './app/my-widget.component';
 
 function getInstance(): MyWidgetComponent | null {
@@ -235,7 +235,7 @@ npm run serve    # Serve for testing
 ```bash
 npm create vite@latest my-okdoc-react-plugin -- --template react-ts
 cd my-okdoc-react-plugin
-npm install @okdoc/plugin-sdk r2wc-react-to-web-component
+npm install @okdoc-ai/plugin-sdk r2wc-react-to-web-component
 ```
 
 ### 2. Create your component
@@ -272,7 +272,7 @@ export default function MyCounter() {
 ```tsx
 // src/main.tsx
 import r2wc from 'r2wc-react-to-web-component';
-import { registerRemotePlugin } from '@okdoc/plugin-sdk';
+import { registerRemotePlugin } from '@okdoc-ai/plugin-sdk';
 import MyCounter, { getInstance } from './MyCounter';
 
 const CounterElement = r2wc(MyCounter, { props: {} });
@@ -363,7 +363,7 @@ No framework needed — just a Custom Element and the SDK:
 ```html
 <!-- index.html — for development/testing only -->
 <script type="module">
-import { registerRemotePlugin } from './node_modules/@okdoc/plugin-sdk/dist/index.js';
+import { registerRemotePlugin } from './node_modules/@okdoc-ai/plugin-sdk/dist/index.js';
 
 class OkdocTimer extends HTMLElement {
   #seconds = 0;
@@ -611,10 +611,10 @@ The bundle (`plugin.js`) can be hosted anywhere that serves static files with CO
 
 ## SDK Exports for Remote Plugins
 
-Install with `npm install @okdoc/plugin-sdk`, then import:
+Install with `npm install @okdoc-ai/plugin-sdk`, then import:
 
 ```typescript
-import { registerRemotePlugin } from '@okdoc/plugin-sdk';
+import { registerRemotePlugin } from '@okdoc-ai/plugin-sdk';
 ```
 
 | Export | Purpose |

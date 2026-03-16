@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Public API
+// @okdoc-ai/plugin-sdk — Public API
 //
 // This is the main entry point. Angular-specific exports are in ./angular.
 // Host-side handler & converters are in ./handler.

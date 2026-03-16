@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Gemini Format Converter
+// @okdoc-ai/plugin-sdk — Gemini Format Converter
 //
 // Converts MCP tool declarations to Google Gemini FunctionDeclaration format.
 // ============================================================================

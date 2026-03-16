@@ -1,7 +1,7 @@
-# @okdoc/plugin-sdk
+# @okdoc-ai/plugin-sdk
 
-[![CI](https://github.com/okDoc-ai/okdoc-ai-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/okDoc-ai/okdoc-ai-sdk/actions/workflows/ci.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/okDoc-ai/okdoc-ai-sdk)](https://github.com/okDoc-ai/okdoc-ai-sdk/releases)
+[![CI](https://github.com/okDoc-ai/plugin-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/okDoc-ai/plugin-sdk/actions/workflows/ci.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/okDoc-ai/plugin-sdk)](https://github.com/okDoc-ai/plugin-sdk/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 SDK for building **okDoc AI-powered plugins**. Provides MCP-aligned types, decorators, AI format converters, and a standalone iframe SDK for creating plugins that integrate with the okDoc voice assistant.
@@ -18,7 +18,7 @@ SDK for building **okDoc AI-powered plugins**. Provides MCP-aligned types, decor
 Add a single `<script>` tag and declare your tools:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/okDoc-ai/okdoc-ai-sdk@1.0.0/cdn/okdoc-iframe-sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/okDoc-ai/plugin-sdk@1.0.0/cdn/okdoc-iframe-sdk.js"></script>
 <script>
   const sdk = OkDocIframeSDK.create({
     pluginId: 'my-plugin',
@@ -48,11 +48,11 @@ See the full guide: [DOCS/IframePluginGuide.md](DOCS/IframePluginGuide.md)
 ## Quick start — Remote plugin (Angular)
 
 ```bash
-npm install @okdoc/plugin-sdk
+npm install @okdoc-ai/plugin-sdk
 ```
 
 ```typescript
-import { OkDocPlugin, McpTool } from '@okdoc/plugin-sdk';
+import { OkDocPlugin, McpTool } from '@okdoc-ai/plugin-sdk';
 
 @OkDocPlugin({
   pluginId: 'weather',
@@ -81,16 +81,16 @@ See the full guide: [DOCS/RemotePluginGuide.md](DOCS/RemotePluginGuide.md)
 
 | Import path | Purpose |
 |-------------|---------|
-| `@okdoc/plugin-sdk` | Core types, decorators (`@OkDocPlugin`, `@McpTool`), metadata readers, registration |
-| `@okdoc/plugin-sdk/angular` | Angular integration (`OkDocNotifier`, `OKDOC_NOTIFIER_TOKEN`) |
-| `@okdoc/plugin-sdk/handler` | Host-side AI format converters (`toGeminiFunctionDeclarations`, `toOpenAiFunctions`) |
+| `@okdoc-ai/plugin-sdk` | Core types, decorators (`@OkDocPlugin`, `@McpTool`), metadata readers, registration |
+| `@okdoc-ai/plugin-sdk/angular` | Angular integration (`OkDocNotifier`, `OKDOC_NOTIFIER_TOKEN`) |
+| `@okdoc-ai/plugin-sdk/handler` | Host-side AI format converters (`toGeminiFunctionDeclarations`, `toOpenAiFunctions`) |
 
 ## CDN / jsdelivr
 
 The standalone iframe SDK is served via [jsdelivr](https://www.jsdelivr.com/):
 
 ```
-https://cdn.jsdelivr.net/gh/okDoc-ai/okdoc-ai-sdk@<version>/cdn/okdoc-iframe-sdk.js
+https://cdn.jsdelivr.net/gh/okDoc-ai/plugin-sdk@<version>/cdn/okdoc-iframe-sdk.js
 ```
 
 Replace `<version>` with a specific tag (e.g. `1.0.0`) or use semver ranges (`@1`, `@1.0`).

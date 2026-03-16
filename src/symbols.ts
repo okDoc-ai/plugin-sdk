@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Metadata keys (Symbols)
+// @okdoc-ai/plugin-sdk — Metadata keys (Symbols)
 // ============================================================================
 
 /** Symbol key for @OkDocPlugin metadata stored on the class constructor */

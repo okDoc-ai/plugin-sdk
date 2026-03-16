@@ -1,5 +1,5 @@
 {
-  "name": "@okdoc/plugin-sdk",
+  "name": "@okdoc-ai/plugin-sdk",
   "version": "1.3.0",
   "description": "SDK for building OkDoc AI-powered plugins — MCP-aligned types, decorators, AI format converters, and iframe SDK.",
   "type": "module",
@@ -53,11 +53,11 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/okDoc-ai/okdoc-ai-sdk.git"
+    "url": "https://github.com/okDoc-ai/plugin-sdk.git"
   },
-  "homepage": "https://github.com/okDoc-ai/okdoc-ai-sdk#readme",
+  "homepage": "https://github.com/okDoc-ai/plugin-sdk#readme",
   "bugs": {
-    "url": "https://github.com/okDoc-ai/okdoc-ai-sdk/issues"
+    "url": "https://github.com/okDoc-ai/plugin-sdk/issues"
   },
   "keywords": [
     "okdoc",

@@ -1,7 +1,7 @@
 // ============================================================================
-// @okdoc/plugin-sdk/handler — Host-side AI format converters
+// @okdoc-ai/plugin-sdk/handler — Host-side AI format converters
 //
-// Import from '@okdoc/plugin-sdk/handler'.
+// Import from '@okdoc-ai/plugin-sdk/handler'.
 // ============================================================================
 
 export { toGeminiFunctionDeclarations } from './converters/gemini.js';

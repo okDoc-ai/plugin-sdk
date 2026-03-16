@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Metadata Readers
+// @okdoc-ai/plugin-sdk — Metadata Readers
 //
 // Read decorator metadata from a class WITHOUT instantiating it.
 // Used by the host framework to discover plugin identity and tools statically.

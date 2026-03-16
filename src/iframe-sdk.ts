@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Iframe SDK (standalone, no dependencies)
+// @okdoc-ai/plugin-sdk — Iframe SDK (standalone, no dependencies)
 //
 // This file is compiled into a self-contained IIFE (okdoc-iframe-sdk.js)
 // that site owners include on their pages via <script> tag.

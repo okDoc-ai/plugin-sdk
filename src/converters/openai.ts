@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — OpenAI Format Converter
+// @okdoc-ai/plugin-sdk — OpenAI Format Converter
 //
 // Converts MCP tool declarations to OpenAI function calling format.
 // ============================================================================

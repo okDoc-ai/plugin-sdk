@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Remote Plugin Registration
+// @okdoc-ai/plugin-sdk — Remote Plugin Registration
 //
 // Call registerRemotePlugin() at the end of your plugin bundle's entry point
 // to make it discoverable by the OkDoc host application.
@@ -35,7 +35,7 @@ const NAMESPACE_RE = /^[a-z][a-z0-9_]*$/;
  *
  * @example
  * ```ts
- * import { registerRemotePlugin } from '@okdoc/plugin-sdk';
+ * import { registerRemotePlugin } from '@okdoc-ai/plugin-sdk';
  *
  * customElements.define('okdoc-my-plugin', MyPluginElement);
  *

@@ -1,5 +1,5 @@
 // ============================================================================
-// @okdoc/plugin-sdk — Iframe SDK Type Definitions (single source of truth)
+// @okdoc-ai/plugin-sdk — Iframe SDK Type Definitions (single source of truth)
 //
 // These interfaces define the public API available to iframe plugin developers
 // via the global `OkDoc` object.

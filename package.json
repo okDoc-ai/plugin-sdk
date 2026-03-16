@@ -69,5 +69,8 @@
     "angular",
     "tool-calling"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "jsdelivr": "./cdn/okdoc-iframe-sdk.js"
 }

@@ -88,6 +88,15 @@ export interface ToolConfig {
     handler: (args: Record<string, unknown>) => Promise<ToolResult>;
 }
 
+export interface PluginAuthor {
+    /** Author or company name */
+    name: string;
+    /** Contact email */
+    email?: string;
+    /** Website or profile URL */
+    url?: string;
+}
+
 export interface InitOptions {
     /** Unique plugin identifier */
     id: string;
@@ -103,6 +112,8 @@ export interface InitOptions {
     namespace: string;
     /** Display mode: foreground (visible UI) or background (hidden) */
     mode?: 'foreground' | 'background';
+    /** Plugin author / company info (required: name + email or url) */
+    author: PluginAuthor;
     /** Allowed origins for the host handshake. If omitted, any origin is accepted. */
     allowedOrigins?: string[];
 }

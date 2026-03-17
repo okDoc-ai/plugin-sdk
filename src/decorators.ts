@@ -7,11 +7,19 @@ import { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols.js';
 
 // ── @OkDocPlugin ────────────────────────────────────────────────────────────
 
+/** Namespace prefix automatically applied to packaged community plugins. */
+const PACKAGED_NAMESPACE_PREFIX = 'odcp_';
+
 /**
  * Class decorator that marks an Angular component as an OkDoc plugin.
  *
  * Stores manifest metadata on the class constructor so the host framework
  * can discover plugin identity, namespace, and icon without instantiation.
+ *
+ * The SDK automatically:
+ * - Normalizes the namespace (hyphens → underscores)
+ * - Prepends `odcp_` to the namespace (packaged community plugin prefix)
+ * - Validates that `author` is provided with `name` and either `email` or `url`
  *
  * ```typescript
  * @OkDocPlugin({
@@ -21,15 +29,33 @@ import { OKDOC_PLUGIN_KEY, MCP_TOOLS_KEY } from './symbols.js';
  *   version: '1.0.0',
  *   icon: 'musical-notes-outline',
  *   namespace: 'audio_player',
+ *   author: { name: 'Your Company', url: 'https://example.com' },
  * })
  * @Component({ selector: 'okdoc-audio-player', standalone: true, ... })
  * export class AudioPlayerComponent { ... }
  * ```
  */
 export function OkDocPlugin(metadata: OkDocPluginMetadata): ClassDecorator {
+    // Validate author at decoration time
+    const a = metadata.author;
+    if (!a || typeof a !== 'object') {
+        throw new Error('[OkDoc SDK] @OkDocPlugin requires "author" with at least "name" and either "email" or "url".');
+    }
+    if (!a.name || a.name.trim() === '') {
+        throw new Error('[OkDoc SDK] @OkDocPlugin requires "author.name" to be a non-empty string.');
+    }
+    if ((!a.email || a.email.trim() === '') && (!a.url || a.url.trim() === '')) {
+        throw new Error('[OkDoc SDK] @OkDocPlugin requires either "author.email" or "author.url".');
+    }
+
     return function (target: Function) {
+        // Normalize namespace and auto-prefix for packaged community plugins
+        const resolved = {
+            ...metadata,
+            namespace: PACKAGED_NAMESPACE_PREFIX + metadata.namespace.replace(/-/g, '_'),
+        };
         Object.defineProperty(target, OKDOC_PLUGIN_KEY, {
-            value: metadata,
+            value: resolved,
             writable: false,
             enumerable: false,
             configurable: false,

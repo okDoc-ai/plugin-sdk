@@ -77,6 +77,14 @@ interface OkDocToolConfig {
     annotations?: OkDocToolAnnotations;
     handler: (args: Record<string, unknown>) => Promise<OkDocToolResult>;
 }
+interface OkDocPluginAuthor {
+    /** Author or company name */
+    name: string;
+    /** Contact email */
+    email?: string;
+    /** Website or profile URL */
+    url?: string;
+}
 interface OkDocInitOptions {
     /** Unique plugin identifier */
     id: string;
@@ -92,6 +100,8 @@ interface OkDocInitOptions {
     namespace: string;
     /** Display mode: foreground (visible UI) or background (hidden) */
     mode?: 'foreground' | 'background';
+    /** Plugin author / company info (required: name + email or url) */
+    author: OkDocPluginAuthor;
     /** Allowed origins for the host handshake. If omitted, any origin is accepted. */
     allowedOrigins?: string[];
 }

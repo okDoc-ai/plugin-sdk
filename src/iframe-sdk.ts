@@ -25,6 +25,7 @@ import type {
     ToolResult,
     ToolConfig,
     InitOptions,
+    PluginAuthor,
 } from './iframe-sdk-types.js';
 
 /** Iframe protocol version this SDK implements */
@@ -54,6 +55,36 @@ let allowedOrigins: string[] | null = null;
 const tools = new Map<string, ToolConfig>();
 let port: MessagePort | null = null;
 let sendTimer: ReturnType<typeof setTimeout> | null = null;
+
+// ── Validation ──────────────────────────────────────────────────────────────
+
+const REQUIRED_INIT_FIELDS: (keyof InitOptions)[] = ['id', 'name', 'namespace', 'version'];
+
+/** Namespace prefix automatically applied to iframe plugins. */
+const IFRAME_NAMESPACE_PREFIX = 'odci_';
+
+function validateInitOptions(options: InitOptions): void {
+    if (!options || typeof options !== 'object') {
+        throw new Error('[OkDoc SDK] init() requires an options object.');
+    }
+    for (const field of REQUIRED_INIT_FIELDS) {
+        const value = options[field];
+        if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+            throw new Error(`[OkDoc SDK] init() requires "${field}" to be a non-empty string.`);
+        }
+    }
+    // Validate author
+    const a = options.author;
+    if (!a || typeof a !== 'object') {
+        throw new Error('[OkDoc SDK] init() requires "author" with at least "name" and either "email" or "url".');
+    }
+    if (!a.name || typeof a.name !== 'string' || a.name.trim() === '') {
+        throw new Error('[OkDoc SDK] init() requires "author.name" to be a non-empty string.');
+    }
+    if ((!a.email || a.email.trim() === '') && (!a.url || a.url.trim() === '')) {
+        throw new Error('[OkDoc SDK] init() requires either "author.email" or "author.url" to be provided.');
+    }
+}
 
 function buildToolDeclarations(): ToolDeclaration[] {
     const declarations: ToolDeclaration[] = [];
@@ -186,7 +217,10 @@ const OkDoc = {
      * Must be called before registerTool().
      */
     init(options: InitOptions): void {
+        validateInitOptions(options);
         const { allowedOrigins: origins, ...m } = options;
+        // Normalize namespace (hyphens → underscores) and auto-prefix for iframe plugins
+        m.namespace = IFRAME_NAMESPACE_PREFIX + m.namespace.replace(/-/g, '_');
         manifest = m;
         allowedOrigins = origins ?? null;
         // If the handshake already arrived before init(), schedule manifest send

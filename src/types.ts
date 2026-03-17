@@ -168,6 +168,16 @@ export interface McpToolResult {
 
 // ── Tool Declaration & Metadata ─────────────────────────────────────────────
 
+/** Plugin author / company information. */
+export interface PluginAuthor {
+    /** Author or company name */
+    name: string;
+    /** Contact email */
+    email?: string;
+    /** Website or profile URL */
+    url?: string;
+}
+
 /** Metadata stored by @OkDocPlugin on the class constructor. */
 export interface OkDocPluginMetadata {
     /** Unique plugin identifier (e.g. 'simple-audio-player') */
@@ -182,6 +192,8 @@ export interface OkDocPluginMetadata {
     icon?: string;
     /** MCP namespace prefix for all tools (e.g. 'audio_player') */
     namespace: string;
+    /** Plugin author / company info (required: name + email or url) */
+    author: PluginAuthor;
     /** Semver of the @okdoc-ai/plugin-sdk this plugin was built with */
     sdkVersion?: string;
     /** MCP protocol version this plugin conforms to (e.g. '2025-03-26') */

@@ -25,6 +25,30 @@ declare global {
 
 const ELEMENT_TAG_RE = /^[a-z][a-z0-9]*-[a-z0-9-]*$/;
 const NAMESPACE_RE = /^[a-z][a-z0-9_]*$/;
+const REQUIRED_MANIFEST_FIELDS: (keyof RemotePluginManifest)[] = ['id', 'name', 'namespace', 'version', 'elementTag'];
+
+/** Namespace prefix automatically applied to packaged community plugins. */
+const PACKAGED_NAMESPACE_PREFIX = 'odcp_';
+
+function validateManifest(m: Partial<RemotePluginManifest>): void {
+    for (const field of REQUIRED_MANIFEST_FIELDS) {
+        const value = (m as Record<string, unknown>)[field];
+        if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+            throw new Error(`[OkDoc SDK] registerRemotePlugin: manifest.${field} is required and must be a non-empty string.`);
+        }
+    }
+    // Validate author
+    const a = (m as Record<string, unknown>).author as Record<string, unknown> | undefined;
+    if (!a || typeof a !== 'object') {
+        throw new Error('[OkDoc SDK] registerRemotePlugin: manifest.author is required with at least "name" and either "email" or "url".');
+    }
+    if (!a.name || typeof a.name !== 'string' || (a.name as string).trim() === '') {
+        throw new Error('[OkDoc SDK] registerRemotePlugin: manifest.author.name is required and must be a non-empty string.');
+    }
+    if ((!a.email || (a.email as string).trim() === '') && (!a.url || (a.url as string).trim() === '')) {
+        throw new Error('[OkDoc SDK] registerRemotePlugin: manifest.author requires either "email" or "url".');
+    }
+}
 
 /**
  * Register a remote plugin so the OkDoc host app can discover it.
@@ -60,22 +84,22 @@ const NAMESPACE_RE = /^[a-z][a-z0-9_]*$/;
 export function registerRemotePlugin(bundle: RemotePluginBundleInput): void {
     const m = bundle.manifest;
 
-    if (!m?.id) {
-        throw new Error('[OkDoc SDK] registerRemotePlugin: manifest.id is required');
-    }
-    if (!m.elementTag) {
-        throw new Error('[OkDoc SDK] registerRemotePlugin: manifest.elementTag is required');
-    }
+    validateManifest(m as Partial<RemotePluginManifest>);
+
     if (!ELEMENT_TAG_RE.test(m.elementTag)) {
         throw new Error(
             `[OkDoc SDK] registerRemotePlugin: elementTag "${m.elementTag}" must be a valid custom element name (lowercase, must contain a hyphen)`,
         );
     }
-    if (m.namespace && !NAMESPACE_RE.test(m.namespace)) {
+    // Normalize namespace (hyphens → underscores) before validation
+    m.namespace = m.namespace.replace(/-/g, '_');
+    if (!NAMESPACE_RE.test(m.namespace)) {
         throw new Error(
             `[OkDoc SDK] registerRemotePlugin: namespace "${m.namespace}" must be lowercase alphanumeric with underscores`,
         );
     }
+    // Auto-prefix namespace for packaged community plugins
+    m.namespace = PACKAGED_NAMESPACE_PREFIX + m.namespace;
 
     // Auto-populate SDK version info
     if (!m.sdkVersion) m.sdkVersion = OKDOC_SDK_VERSION;

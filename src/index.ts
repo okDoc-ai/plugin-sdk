@@ -29,6 +29,7 @@ export type {
     McpToolMetadata,
     OkDocPluginMetadata,
     OkDocPluginManifest,
+    PluginAuthor,
     RemotePluginManifest,
     RemotePluginBundle,
     OkDocPluginGlobal,

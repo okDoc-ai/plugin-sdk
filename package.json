@@ -1,6 +1,6 @@
 {
   "name": "@okdoc-ai/plugin-sdk",
-  "version": "1.8.12",
+  "version": "1.9.0",
   "description": "SDK for building OkDoc AI-powered plugins — MCP-aligned types, decorators, AI format converters, and iframe SDK.",
   "type": "module",
   "main": "./dist/index.js",

@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-  id-token: write  # Required for npm provenance
+  id-token: write  # Technically not needed for tokens, but harmless to leave in
 
 jobs:
   release:
@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
 
@@ -72,7 +72,20 @@ jobs:
             _release/okdoc-iframe-sdk.js
             _release/okdoc-iframe-sdk-global.d.ts
 
+      # Everything up to here runs was on Node 22
+      # Now switch to Node 24 for the publish step to get the latest npm CLI with improved provenance support
+      # Note: This is needed to push to npmjs with Trusted Publishing option (which requires npm >22)
+      # TODO: After upgrading fully to Node 24, you can remove these steps of switch and install
+
+      - name: Switch to Node 24 for publish (newer npm CLI)
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Update npm to ensure latest (optional safety net)
+        run: npm install -g npm@latest
+
       - name: Publish to npm
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

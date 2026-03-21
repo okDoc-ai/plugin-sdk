@@ -12,6 +12,10 @@ import { InjectionToken } from '@angular/core';
 /**
  * Abstract notifier that plugins inject to send bidirectional messages to the AI.
  *
+ * The host provides a **scoped** implementation per plugin component, so
+ * the notifier already knows the plugin's namespace and display name.
+ * Callers only need to pass the message itself.
+ *
  * Usage in a plugin:
  * ```typescript
  * import { OkDocNotifier } from '@okdoc-ai/plugin-sdk/angular';
@@ -20,23 +24,17 @@ import { InjectionToken } from '@angular/core';
  *   private notifier = inject(OkDocNotifier);
  *
  *   onTrackFinished() {
- *     this.notifier.notify('Track finished playing', 'audio_player');
+ *     this.notifier.notify('Track finished playing');
  *   }
  * }
- * ```
- *
- * The host app provides the implementation:
- * ```typescript
- * provideOkDocNotifier(() => inject(McpRegistryService))
  * ```
  */
 export abstract class OkDocNotifier {
     /**
      * Send a notification message to the AI.
      * @param message Human-readable message describing the event
-     * @param namespace Plugin namespace (e.g. 'audio_player')
      */
-    abstract notify(message: string, namespace?: string): void;
+    abstract notify(message: string): void;
 }
 
 /**

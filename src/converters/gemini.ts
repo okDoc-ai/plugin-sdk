@@ -97,6 +97,10 @@ export function toGeminiFunctionDeclarations(
                 params.required = tool.inputSchema.required;
             }
             decl.parameters = params;
+        } else {
+            // Gemini Live API requires a parameters field even for no-arg tools,
+            // otherwise it returns 1008 "Operation not implemented" errors.
+            decl.parameters = { type: 'OBJECT' };
         }
 
         return decl;

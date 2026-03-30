@@ -76,12 +76,12 @@ Why is this here: To outline how the app should handle user data and session con
 
 (EDIT ME: OPTIONAL)
 
-Use local storage to save the todo items.
+Use local storage to save the data
 Ensure the data is retrieved and displayed seamlessly when the page is refreshed.
 
 =======================================
 =======================================
-Coding Guidelines:
+5. CODING GUIDELINES
 ---------------------------------------
 Why is this here: This establishes the quality, architectural, and security standards expected for all plugins on the platform.
 ---------------------------------------
@@ -93,13 +93,22 @@ Write clean, maintainable code. Avoid hacks or non-standard workarounds.
 
 =======================================
 =======================================
-FINAL NOTES to AI
+6. FINAL NOTES to AI
 ---------------------------------------
 Why is this here: This section provides final instructions and reminders for the AI before it starts generating code.
 ---------------------------------------
 
 (DO NOT EDIT THIS SECTION. This section is for the AI)
 
-Before writing code, perform a deep review of:
- * The SDK source code.
- * The guides provided within the SDK repository.
+IMPORTANT: 
+Before writing code:
+ * Read the OkDoc SDK INTEGRATION DETAILS section again
+ * Perform a deep review of: The SDK source code and the guides provided within the SDK repository.
+
+IMPORTANT:
+* Use Angular/Ionic as the default tech stack for building the app unless the user asks to use something different.
+* The app is going to be put in iframe on mobile devices so may have smaller screens.
+so ensure the UI is responsive and works well on smaller screens and is dynamically resizable and workable inside iframe.
+* When naming the app ensure you include "Hero App" in the name (also in package name ensure it ends with -hero-app as well)
+* If the app requires some api keys whatever, ensure in the end you also generate a setup guide along with the code, describing how to obtain those api keys and where to put them in the code.
+* ENSURE you also generate a github action workflow file so it could be deployable to Github Pages with Github Actions

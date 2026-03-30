@@ -1,0 +1,105 @@
+The doc contains instructions for the AI to build a specific plugin/app using the OkDoc plugin SDK.
+
+How to use:
+* The areas with (EDIT ME) are for you to edit and fill in.
+Each section has a description of what's expected to be filled in. Just read and fill the ones that are editable.
+* The areas with (DO NOT EDIT) are mainly for AI, you can ignore them.
+* The areas with (EDIT ME: OPTIONAL) are optional, you can choose to edit them or not.
+* After filling in just pass it to AI to implement.
+
+=======================================
+1. APP DESCRIPTION
+---------------------------------------
+Why is this here: To define the core functionality, tech stack, and purpose of the specific app/plugin/hero being built.
+---------------------------------------
+
+(EDIT ME)
+Please create a todo list web app using Angular.
+
+=======================================
+=======================================
+2. SDK INTEGRATION DETAILS (FOR AI)
+---------------------------------------
+Why is this here: To estabilish the foundational architecture, mandatory SDK resources, and critical integration rules required to communicate with the HOST app.
+---------------------------------------
+
+(DO NOT EDIT THIS SECTION. This section is for the AI)
+
+IMPORTANT! ENSURE YOU FOLLOW THIS:
+This web app will act as a plugin embedded inside a HOST app.
+The SDK provides methods to declare Tools, Notifiers, and an App Manifest.
+The HOST app will use these to interact with this plugin/app.
+Tools are called programmatically by the HOST.
+Notifiers are used to broadcast state changes to the HOST.
+And the manifest declares the plugin's identity, capabilities, and metadata to the HOST.
+
+SDK Repository:
+https://github.com/okDoc-ai/plugin-sdk
+
+Implementation Approach:
+The SDK offers two ways to create a plugin. 
+IMPORTANT: We strictly require the iFrame plugin approach.
+Read the guide here: https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/IframePluginGuide.md
+
+Project Setup:
+For Angular/Ionic project setup, follow this guide:
+https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/IonicAngularProjectSetup.md
+
+IMPORTANT:
+Since the tools are called programmatically by the HOST, 
+You must ensure the UI is properly and immediately refreshed whenever a tool is executed.
+
+=======================================
+=======================================
+3. OkDoc Tools and Notifiers:
+---------------------------------------
+Why is this here: To define the exact voice-navigable capabilities (Tools) and state-syncing mechanisms (Notifiers) required for this specific app. 
+This basically describes what actions we want to be able to perform with voice commands on this app, and what state changes we want to be able to notify the HOST app about.
+---------------------------------------
+
+(EDIT ME)
+
+Tools to Implement:
+Add a registered SDK Tool for every action, button, or interactive element present in the UI.
+Add Tools for switching between app tabs or views, if applicable.
+
+Notifiers to Implement:
+Use SDK Notifiers to broadcast state changes to the HOST app. 
+For this app, notify the HOST when todo items change (e.g., item added, state changed, list cleared).
+
+=======================================
+=======================================
+4. DATA PERSISTENCE
+---------------------------------------
+Why is this here: To outline how the app should handle user data and session continuity.
+---------------------------------------
+
+(EDIT ME: OPTIONAL)
+
+Use local storage to save the todo items.
+Ensure the data is retrieved and displayed seamlessly when the page is refreshed.
+
+=======================================
+=======================================
+Coding Guidelines:
+---------------------------------------
+Why is this here: This establishes the quality, architectural, and security standards expected for all plugins on the platform.
+---------------------------------------
+
+(EDIT ME: OPTIONAL)
+
+Please follow the official best practices for the chosen tech stack.
+Write clean, maintainable code. Avoid hacks or non-standard workarounds.
+
+=======================================
+=======================================
+FINAL NOTES to AI
+---------------------------------------
+Why is this here: This section provides final instructions and reminders for the AI before it starts generating code.
+---------------------------------------
+
+(DO NOT EDIT THIS SECTION. This section is for the AI)
+
+Before writing code, perform a deep review of:
+ * The SDK source code.
+ * The guides provided within the SDK repository.

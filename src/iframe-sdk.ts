@@ -56,6 +56,13 @@ const tools = new Map<string, ToolConfig>();
 let port: MessagePort | null = null;
 let sendTimer: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * True when the page is NOT inside an iframe (i.e. running standalone).
+ * When standalone, all host-communication methods silently no-op because
+ * there is no parent host to connect to.
+ */
+const isStandalone = window.self === window.top;
+
 // ── Validation ──────────────────────────────────────────────────────────────
 
 const REQUIRED_INIT_FIELDS: (keyof InitOptions)[] = ['id', 'name', 'namespace', 'version'];
@@ -204,8 +211,10 @@ function onHandshake(event: MessageEvent): void {
     sendManifest(port);
 }
 
-// Listen for the handshake message from the host
-window.addEventListener('message', onHandshake);
+// Listen for the handshake message from the host (only when inside an iframe)
+if (!isStandalone) {
+    window.addEventListener('message', onHandshake);
+}
 
 // ============================================================================
 // Public API — exposed as window.OkDoc
@@ -241,6 +250,7 @@ const OkDoc = {
      * Only works after the host has connected via handshake.
      */
     notify(message: string): void {
+        if (isStandalone) return; // Not inside host — silently ignore
         if (port) {
             console.log('[OkDoc SDK] Sending notification to host:', message);
             port.postMessage({ type: 'okdoc:notify', message });
@@ -253,7 +263,9 @@ const OkDoc = {
      * Clean up the SDK: remove event listeners, close port, clear state.
      */
     destroy(): void {
-        window.removeEventListener('message', onHandshake);
+        if (!isStandalone) {
+            window.removeEventListener('message', onHandshake);
+        }
         if (sendTimer !== null) {
             clearTimeout(sendTimer);
             sendTimer = null;

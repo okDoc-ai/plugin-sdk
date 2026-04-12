@@ -13,8 +13,7 @@ Each section has a description of what's expected to be filled in. Just read and
 Why is this here: To define the core functionality, tech stack, and purpose of the specific app/plugin/hero being built.
 ---------------------------------------
 
-(EDIT ME)
-Please create a todo list web app using Angular.
+(EDIT ME) Please create a todo list web app using Angular.
 
 =======================================
 =======================================
@@ -53,7 +52,11 @@ You must ensure the UI is properly and immediately refreshed whenever a tool is 
 =======================================
 3. OkDoc Tools and Notifiers:
 ---------------------------------------
-Why is this here: To define the exact voice-navigable capabilities (Tools) and state-syncing mechanisms (Notifiers) required for this specific app. 
+Why is this here: 
+To define your tools and notifiers. Tools are used inside okDoc.ai to interact with your Hero App.
+They allow the AI to actually perform actions through your app.
+Notifiers are used to send data back from your Hero App to okDoc.ai.
+So while tools let the AI act, notifiers let your app respond..
 This basically describes what actions we want to be able to perform with voice commands on this app, and what state changes we want to be able to notify the HOST app about.
 ---------------------------------------
 
@@ -110,5 +113,8 @@ IMPORTANT:
 * The app is going to be put in iframe on mobile devices so may have smaller screens.
 so ensure the UI is responsive and works well on smaller screens and is dynamically resizable and workable inside iframe.
 * When naming the app ensure you include "Hero App" in the name (also in package name ensure it ends with -hero-app as well)
-* If the app requires some api keys whatever, ensure in the end you also generate a setup guide along with the code, describing how to obtain those api keys and where to put them in the code.
+* If the app requires some api keys whatever, ensure in the end you also generate a setup guide along with the code,
+    describing how to obtain those api keys and where to put them in the code.
 * ENSURE you also generate a github action workflow file so it could be deployable to Github Pages with Github Actions
+AND ensure you build production mode in that file.
+* Ensure cache-busting is implemented properly so that when the user updates the app, they get the latest version without needing to clear cache or do hard reload.

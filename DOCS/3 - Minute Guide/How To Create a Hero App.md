@@ -13,7 +13,7 @@
 
 ### Prepare the prompt for AI:
 1. Open and copy the prompt file:
-   [Sample Prompt for iFrame Plugin](https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/Guides%20for%20Humans/Sample%20Prompt%20for%20Hero%20App.txt)
+   [Sample Prompt for iFrame Plugin](https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/3%20-%20Minute%20Guide/Sample%20Prompt%20for%20Hero%20App.txt)
 2. Edit the sections that are marked with `(EDIT ME)` and fill in the required information. (Usually, filling the 1st and 3rd sections is enough.)
 3. Optionally, edit the sections marked with `(EDIT ME: OPTIONAL)` if you want to provide additional details.
 

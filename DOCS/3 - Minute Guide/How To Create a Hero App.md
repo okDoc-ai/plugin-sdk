@@ -3,7 +3,7 @@
 ## The Magic 3-Step Approach:
 
 1. Edit and paste the instructions from here into any AI coding tool (like Google AI Studio or Bolt):
-   [Sample Prompt for iFrame Plugin](https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/Guides%20for%20Humans/Sample%20Prompt%20for%20Hero%20App.txt)
+   [Sample Prompt for iFrame Plugin](https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/3%20-%20Minute%20Guide/Sample%20Prompt%20for%20Hero%20App.txt)
 2. Deploy the hero app and copy the URL.
 3. Go to the okDoc.ai app -> Profile -> Hero Store, then paste and load the URL.
 

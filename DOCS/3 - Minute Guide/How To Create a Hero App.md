@@ -1,6 +1,6 @@
 # How to Create a Hero App
 
-## The Magic 3-Step Approach:
+## The Magic short 3-Step Approach:
 
 1. Edit and paste the instructions from here into any AI coding tool (like Google AI Studio or Bolt):
    [Sample Prompt for iFrame Plugin](https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/3%20-%20Minute%20Guide/Sample%20Prompt%20for%20Hero%20App.txt)
@@ -9,14 +9,12 @@
 
 ---
 
-## Detailed Steps:
+## Detailed Step-by-step Approach:
 
 ### Prepare the prompt for AI:
 1. Open and copy the prompt file:
    [Sample Prompt for iFrame Plugin](https://github.com/okDoc-ai/plugin-sdk/blob/master/DOCS/3%20-%20Minute%20Guide/Sample%20Prompt%20for%20Hero%20App.txt)
 2. Edit the sections that are marked with `(EDIT ME)` and fill in the required information. (Usually, filling the 1st and 3rd sections is enough.)
-3. Optionally, edit the sections marked with `(EDIT ME: OPTIONAL)` if you want to provide additional details.
-
 ### Implement the hero app:
 4. Open an AI coding tool like:
    * Google AI Studio
